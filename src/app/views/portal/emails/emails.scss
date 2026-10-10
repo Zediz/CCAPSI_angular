@@ -1,0 +1,165 @@
+/* ===== Modal claro con animación fade + slide ===== */
+.light-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.shown { opacity: 1; }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+  }
+
+  &.shown .modal-content { transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h3 {
+    margin: 0;
+    min-width: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.light-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.light-btn-cancel,
+.light-btn-submit {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.light-btn-cancel {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.light-btn-submit {
+  background: #0ea5e9;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ===== Contenido del correo ===== */
+.email-meta {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #475569;
+  word-break: break-word;
+
+  div + div { margin-top: 4px; }
+  span { margin-right: 4px; font-weight: 700; color: #1e293b; }
+}
+
+.email-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+
+  iframe {
+    width: 100%;
+    height: 55vh;
+    border: 0;
+    background: white;
+  }
+
+  pre {
+    width: 100%;
+    max-height: 55vh;
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: inherit;
+    color: #1e293b;
+  }
+}
+
+.email-placeholder {
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+}
+
+/* ===== Toolbar ===== */
+.card-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ===== Tabla ===== */
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-row {
+  cursor: pointer;
+
+  .from-email { font-size: 0.8rem; color: #94a3b8; }
+  .subject i { margin-right: 4px; color: #94a3b8; }
+
+  /* Los pendientes de responder resaltan, como los no leídos de una bandeja. */
+  &.pending .from-name,
+  &.pending .subject { font-weight: 600; }
+}

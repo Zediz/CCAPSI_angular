@@ -1,0 +1,226 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Cotizaciones</span> Pendientes</h1>
+    <p>Consulta y gestiona las solicitudes de cotización de tus clientes.</p>
+  </div>
+</header>
+
+<!-- Modal para Crear y Enviar Cotización (formulario a la izquierda, editor a la derecha) -->
+<div id="sendEmailModal" class="modal-overlay light-modal"
+     [style.display]="emailModal.visible() ? 'flex' : 'none'"
+     [class.shown]="emailModal.shown()">
+  <div class="modal-content send-modal">
+    <div class="modal-header">
+      <h3>
+        @switch (sendMode()) {
+          @case ('nueva') { <i class="fa-solid fa-envelope"></i> Nueva Cotización }
+          @case ('ver') { <i class="fa-solid fa-file-invoice-dollar"></i> Cotización }
+          @default { <i class="fa-solid fa-share"></i> Reenviar Cotización }
+        }
+      </h3>
+      <button class="light-close" (click)="closeSendEmailModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <form id="sendEmailForm" #sendEmailForm (submit)="submitSendEmail($event)">
+      <input type="hidden" name="cotizacion_id">
+
+      <div class="send-layout">
+        <div class="send-fields">
+          <div class="field">
+            <label class="light-label">Curso <span class="required">*</span></label>
+            <input type="text" name="curso" maxlength="255" list="cursosList" placeholder="Ej. Trabajos en altura" class="light-input"
+                   [required]="sendMode() === 'nueva'" [disabled]="sendMode() !== 'nueva'">
+          </div>
+
+          @if (sendMode() === 'nueva') {
+            <label class="check-field">
+              <input type="checkbox" [checked]="clienteNuevo()" (change)="onClienteNuevoChange($event)">
+              <span>Cliente nuevo</span>
+            </label>
+
+            @if (!clienteNuevo()) {
+              <div class="field">
+                <label class="light-label">Cliente registrado <span class="required">*</span></label>
+                <select name="client_id" required class="light-input" (change)="onClienteSelected($event)">
+                  @switch (clientesState()) {
+                    @case ('loading') { <option value="" disabled selected>Cargando clientes...</option> }
+                    @case ('error') { <option value="" disabled selected>Error al cargar clientes</option> }
+                    @default {
+                      <option value="" disabled selected>{{ clientesOrdenados().length ? 'Selecciona un cliente' : 'No hay clientes registrados' }}</option>
+                      @for (c of clientesOrdenados(); track c.id) {
+                        <option [value]="c.id">{{ c.razon_social }}{{ c.contacto_1_nombre ? ' — ' + c.contacto_1_nombre : '' }}</option>
+                      }
+                    }
+                  }
+                </select>
+              </div>
+            }
+          }
+          <div class="field">
+            <label class="light-label">Nombre del Cliente <span class="required">*</span></label>
+            <input type="text" name="nombre" required placeholder="Ej. Juan Pérez" class="light-input" [disabled]="soloLectura()" (input)="onNombreInput($event)">
+          </div>
+          <div class="field">
+            <label class="light-label">Empresa</label>
+            <input type="text" name="empresa" placeholder="Ej. Mi Empresa S.A." class="light-input" [disabled]="sendMode() !== 'nueva'">
+          </div>
+          <div class="field">
+            <label class="light-label">Correos destinatarios (separados por coma) <span class="required">*</span></label>
+            <input type="text" name="emails" required placeholder="Ej. correo1@ejemplo.com, correo2@ejemplo.com" class="light-input" [disabled]="soloLectura()">
+          </div>
+          <div class="field">
+            <label class="light-label">WhatsApp</label>
+            <input type="text" name="whatsapp" placeholder="Ej. +521234567890" class="light-input"
+                   [disabled]="sendMode() !== 'nueva'">
+          </div>
+          <div class="field">
+            <label class="light-label">
+              Adjuntar Cotización
+              @if (sendMode() === 'nueva') { <span class="required">*</span> }
+            </label>
+            @if (sendMode() !== 'nueva') {
+              <div class="archivo-guardado">
+                <i class="fa-solid fa-paperclip"></i>
+                @if (soloLectura()) {
+                  <span>{{ archivoGuardado() || 'Archivo guardado' }}</span>
+                } @else {
+                  <span>{{ attachmentName() ? 'Se enviará el archivo nuevo' : 'Se reenviará: ' + (archivoGuardado() || 'el archivo guardado') }}</span>
+                }
+                <button type="button" class="link-btn" title="Abrir archivo en otra pestaña" (click)="verArchivoGuardado()">
+                  <i class="fa-solid fa-download"></i> Abrir
+                </button>
+              </div>
+            }
+            <div class="drop-file-area" [hidden]="soloLectura()"
+                 [class.hover]="dropHover()" [class.has-file]="attachmentName()"
+                 (click)="openAttachmentPicker()" (dragover)="onAttachmentDragOver($event)"
+                 (dragleave)="dropHover.set(false)" (drop)="onAttachmentDrop($event)">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+                {{ attachmentName() || (sendMode() === 'nueva' ? defaultDropText : 'Opcional: adjunta otro archivo para reemplazarlo') }}
+              </p>
+              <input type="file" #emailAttachment name="attachment" style="display: none;" [required]="sendMode() === 'nueva'"
+                     (click)="$event.stopPropagation()" (change)="onAttachmentSelected($event)">
+            </div>
+          </div>
+        </div>
+
+        <div class="send-editor">
+          <label class="light-label">Mensaje <span class="required">*</span></label>
+          <div #emailMessageEditor class="editor-host"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="light-btn-cancel" (click)="closeSendEmailModal()">{{ soloLectura() ? 'Cerrar' : 'Cancelar' }}</button>
+        @if (soloLectura()) {
+          <button type="button" class="light-btn-submit" (click)="reenviarDesdeVista()">
+            <i class="fa-solid fa-share"></i> Reenviar
+          </button>
+        } @else {
+        <button type="submit" class="light-btn-submit" [disabled]="sendingEmail()">
+          @if (sendingEmail()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+          } @else {
+            <i class="fa-solid" [class]="sendMode() === 'nueva' ? 'fa-paper-plane' : 'fa-share'"></i>
+            {{ sendMode() === 'nueva' ? 'Enviar' : 'Reenviar' }}
+          }
+        </button>
+        }
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Sugerencias de cursos para los inputs de curso (se puede escribir un nombre libre) -->
+<datalist id="cursosList">
+  @for (opt of courseOptions(); track opt.uuid) {
+    <option [value]="optionLabel(opt)"></option>
+  }
+</datalist>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <div class="form-card" style="max-width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2><i class="fa-solid fa-file-invoice-dollar"></i> Listado de cotizaciones</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div class="date-picker-container" style="position: relative;">
+            <i class="fa-regular fa-calendar" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" id="dateRangePicker" #dateRangePicker class="form-control toolbar-input" placeholder="Selecciona un rango...">
+          </div>
+          <button class="btn-primary" style="padding: 9px 18px; font-size: 0.9rem; background: #2ed573; color: #111; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;" (click)="openNewSendModal()">
+            <i class="fa-solid fa-plus"></i> Nueva Cotización
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="cotizacionesTable">
+          <thead>
+            <tr>
+              <th [class]="sortClass('created_at')" (click)="sortTable('created_at')" style="width: 140px;">Fecha <i [class]="sortIcon('created_at')"></i></th>
+              <th [class]="sortClass('nombre')" (click)="sortTable('nombre')">Nombre <i [class]="sortIcon('nombre')"></i></th>
+              <th [class]="sortClass('course_name')" (click)="sortTable('course_name')" style="width: 130px; max-width: 130px;">Curso <i [class]="sortIcon('course_name')"></i></th>
+              <th [class]="sortClass('email')" (click)="sortTable('email')">Email <i [class]="sortIcon('email')"></i></th>
+              <th [class]="sortClass('whatsapp')" (click)="sortTable('whatsapp')">WhatsApp <i [class]="sortIcon('whatsapp')"></i></th>
+              <th [class]="sortClass('mensaje')" (click)="sortTable('mensaje')" style="max-width: 300px;">Mensaje <i [class]="sortIcon('mensaje')"></i></th>
+              <th style="text-align: center; width: 120px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cotizacionesBody">
+            @switch (state()) {
+              @case ('loading') {
+                <tr>
+                  <td colspan="7" class="loading-state">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <p>Cargando cotizaciones...</p>
+                  </td>
+                </tr>
+              }
+              @case ('error') {
+                <tr>
+                  <td colspan="7" style="text-align: center; color: #ff4757; padding: 2rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Ocurrió un error al cargar las cotizaciones.</p>
+                  </td>
+                </tr>
+              }
+              @default {
+                @for (row of rows(); track row.cotizacion.id) {
+                  <tr style="cursor: pointer;" title="Clic para ver la cotización" (click)="openViewModal(row)">
+                    <td class="muted" style="white-space: nowrap;">{{ row.fecha }}</td>
+                    <td style="font-weight: 600;">{{ row.nombre }}</td>
+                    <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="row.curso">{{ row.curso }}</td>
+                    <td [title]="row.emailsTodos" style="color: #00c8ff;">{{ row.email }}</td>
+                    <td><a [href]="'https://wa.me/' + row.whatsappDigits" target="_blank" style="color: #2ed573; text-decoration: none;" (click)="$event.stopPropagation()"><i class="fa-brands fa-whatsapp"></i> {{ row.whatsapp }}</a></td>
+                    <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="row.mensaje">{{ row.mensaje }}</td>
+                    <td style="text-align: center;">
+                      @if (row.tieneArchivo) {
+                        <button class="row-action row-action-file" title="Abrir archivo adjunto" (click)="$event.stopPropagation(); verArchivo(row.cotizacion.id)">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                      }
+                      <button class="row-action row-action-email" title="Reenviar cotización" (click)="$event.stopPropagation(); openSendEmailModal(row)">
+                        <i class="fa-solid fa-share"></i>
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                      <i class="fa-solid fa-file-invoice-dollar" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                      <p>No se encontraron cotizaciones pendientes en el rango seleccionado.</p>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

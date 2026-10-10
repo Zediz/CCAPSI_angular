@@ -1,0 +1,63 @@
+<nav class="dash-navbar" id="dashNavbar" [class.scrolled]="scrolled()">
+  <div class="container">
+    <a routerLink="/" class="navbar-brand">
+      <div><img src="assets/images/logo/logo_h.png" alt="CCAPSI" height="42"></div>
+      <div class="brand-text">CCAP<span>SI</span></div>
+    </a>
+    <div class="dash-nav-links" id="dashNavLinks" [class.active]="menuOpen()">
+      @for (l of links; track l.route) {
+        <a [routerLink]="l.route" routerLinkActive="active-link" class="dash-nav-link" (click)="onNavigate()">
+          <i class="fa-solid" [class]="l.icon"></i> {{ l.label }}
+        </a>
+      }
+
+      <!-- Dropdowns: se marcan activos si alguna de sus rutas lo está -->
+      @for (d of dropdowns; track d.label) {
+        <div class="dash-nav-dropdown" routerLinkActive="active-link" [class.open]="openDropdown() === d.label">
+          <button type="button" class="dash-nav-link" aria-haspopup="true" [attr.aria-expanded]="openDropdown() === d.label" (click)="toggleDropdown(d.label)">
+            <i class="fa-solid" [class]="d.icon"></i> {{ d.label }}
+            <i class="fa-solid fa-chevron-down dash-chevron"></i>
+          </button>
+          <div class="dash-dropdown dash-nav-submenu">
+            @for (c of d.items; track c.label) {
+              @if (c.route) {
+                <a [routerLink]="c.route" routerLinkActive="active-link" class="dash-dropdown-item" (click)="onNavigate()">
+                  <i class="fa-solid" [class]="c.icon"></i> {{ c.label }}
+                </a>
+              } @else {
+                <span class="dash-dropdown-item disabled" aria-disabled="true" title="Próximamente">
+                  <i class="fa-solid" [class]="c.icon"></i> {{ c.label }}
+                  <small class="dash-soon">Próximamente</small>
+                </span>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <div class="dash-nav-right">
+      <div class="dash-user-menu" id="userMenu" #userMenu [class.open]="userMenuOpen()">
+        <button class="dash-user-btn" id="userBtn" aria-label="Menú de usuario" (click)="toggleUserMenu($event)">
+          <div class="dash-user-avatar">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <i class="fa-solid fa-chevron-down dash-chevron"></i>
+        </button>
+        <div class="dash-dropdown" id="userDropdown">
+          <a href="#" class="dash-dropdown-item" (click)="$event.preventDefault()">
+            <i class="fa-solid fa-user-circle"></i> Mi Perfil
+          </a>
+          <div class="dash-dropdown-divider"></div>
+          <a href="#" class="dash-dropdown-item dash-logout" id="logoutBtn" (click)="logout($event)">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </a>
+        </div>
+      </div>
+    </div>
+    <button class="hamburger" id="dashHamburger" aria-label="Menú" [class.active]="menuOpen()" (click)="menuOpen.set(!menuOpen())">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>

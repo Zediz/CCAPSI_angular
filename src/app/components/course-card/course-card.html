@@ -1,0 +1,25 @@
+<a [routerLink]="['/cursos', curso().uuid]" style="text-decoration: none; color: inherit; display: block;" class="course-card animate-on-scroll visible" [class]="'animate-delay-' + ((index() % 4) + 1)">
+  <div class="course-card-image">
+    <img [src]="curso().image_url" [alt]="curso().title" (error)="onImgError($event)">
+    @if (isCertified()) {
+      <span class="course-tag">Certificado</span>
+    }
+  </div>
+  <div class="course-card-body">
+    <h3>{{ curso().title }}</h3>
+    <p>{{ curso().subtitle || 'Curso de seguridad industrial y salud ocupacional.' }}</p>
+    <div class="course-card-meta">
+      <div class="meta-left">
+        <div class="meta-item">
+          <i class="fa-solid fa-clock"></i> {{ curso().duration_hours || '0' }} hrs
+        </div>
+        <div class="meta-item">
+          <i class="fa-solid fa-user-group"></i> {{ curso().students_count || '0' }} inscritos
+        </div>
+      </div>
+      @if (price()) {
+        <div class="price">{{ price() }}</div>
+      }
+    </div>
+  </div>
+</a>

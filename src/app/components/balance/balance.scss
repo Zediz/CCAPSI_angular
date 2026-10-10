@@ -1,0 +1,94 @@
+.balance-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+  background: var(--light-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-elevated);
+}
+
+.balance-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+
+  &.loading {
+    opacity: 0.5;
+  }
+}
+
+.balance-previous {
+  font-size: 0.8rem;
+  color: #94a3b8;
+
+  strong {
+    font-weight: 600;
+    color: #64748b;
+  }
+}
+
+.balance-label {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.balance-amount {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  color: var(--text-dark);
+  overflow-wrap: anywhere;
+}
+
+.balance-nav {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--light-card);
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  // Tooltip ("pop up") con el texto de data-tooltip
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, 4px);
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #1e293b;
+    color: #fff;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  &:hover:not(:disabled)::after,
+  &:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

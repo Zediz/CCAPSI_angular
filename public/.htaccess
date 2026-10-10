@@ -1,0 +1,10 @@
+# Angular usa rutas del lado del cliente (ej. /portal): si la URL no es un archivo o carpeta
+# real del servidor, se responde index.html y el router de Angular resuelve la ruta.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

@@ -1,0 +1,20 @@
+<div class="balance-card">
+  <button type="button" class="balance-nav" data-tooltip="Mes anterior" aria-label="Mes anterior" (click)="previousMonth()">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+
+  <div class="balance-body" [class.loading]="loading()">
+    <span class="balance-previous">
+      Balance {{ previousMonthLabel() }}: <strong>{{ format(previousBalance()) }}</strong>
+    </span>
+    <span class="balance-label">
+      {{ isCurrentMonth() ? 'Balance actual' : 'Balance al cierre' }} · {{ monthLabel() }}
+    </span>
+    <span class="balance-amount">{{ format(balance()) }}</span>
+  </div>
+
+  <button type="button" class="balance-nav" data-tooltip="Mes siguiente" aria-label="Mes siguiente"
+    [disabled]="isCurrentMonth()" (click)="nextMonth()">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</div>

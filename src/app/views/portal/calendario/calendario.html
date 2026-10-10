@@ -1,0 +1,291 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Calendario de</span> Cursos</h1>
+    <p>Agenda cursos y bloquea horarios en los que no se deben programar cursos.</p>
+  </div>
+</header>
+
+<!-- Modal para Agendar / Editar curso o bloqueo -->
+<div class="modal-overlay light-modal"
+     [style.display]="eventoModal.visible() ? 'flex' : 'none'"
+     [class.shown]="eventoModal.shown()">
+  <div class="modal-content" style="max-width: 620px;">
+    <div class="modal-head">
+      <h3>
+        @if (editing()) {
+          <i class="fa-solid fa-pen-to-square"></i> Editar {{ tipo() === 'bloqueo' ? 'bloqueo' : 'curso agendado' }}
+        } @else {
+          <i class="fa-solid" [class]="tipo() === 'bloqueo' ? 'fa-ban' : 'fa-calendar-plus'"></i>
+          {{ tipo() === 'bloqueo' ? 'Bloquear horario' : 'Agendar curso' }}
+        }
+      </h3>
+      <button type="button" class="light-close" (click)="closeEventoModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="tipo-toggle" role="tablist">
+      <button type="button" [class.active]="tipo() === 'curso'" (click)="tipo.set('curso')">
+        <i class="fa-solid fa-graduation-cap"></i> Curso
+      </button>
+      <button type="button" [class.active]="tipo() === 'bloqueo'" (click)="tipo.set('bloqueo')">
+        <i class="fa-solid fa-ban"></i> Bloqueo de horario
+      </button>
+    </div>
+
+    <form #eventoForm (submit)="submitEvento($event)">
+      <div class="field-grid" [hidden]="tipo() === 'bloqueo'">
+        <div class="field full">
+          <label class="light-label">Curso <span class="req">*</span></label>
+          <input type="text" name="curso" list="cursosOptions" maxlength="255" class="light-input"
+                 placeholder="Selecciona o escribe el nombre del curso" [required]="tipo() === 'curso'">
+          <datalist id="cursosOptions">
+            @for (c of courseOptions(); track c.uuid) {
+              <option [value]="c.title || c.name || c.nombre"></option>
+            }
+          </datalist>
+        </div>
+        <div class="field">
+          <label class="light-label">Cliente</label>
+          <input type="text" name="cliente" maxlength="255" class="light-input" placeholder="Ej. Empresa S.A. de C.V.">
+        </div>
+        <div class="field">
+          <label class="light-label">Modalidad</label>
+          <select name="modalidad" class="light-input">
+            <option value="presencial">Presencial</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="light-label">Ubicación</label>
+          <input type="text" name="ubicacion" maxlength="255" class="light-input" placeholder="Dirección o liga de la sesión">
+        </div>
+        <div class="field">
+          <label class="light-label">Duración</label>
+          <input type="text" name="duracion" maxlength="100" class="light-input" placeholder="Ej. 8 horas">
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field full">
+          <label class="checkbox-label">
+            <input type="checkbox" [checked]="allDay()" (change)="allDay.set($any($event.target).checked)">
+            Todo el día
+          </label>
+        </div>
+        <div class="field">
+          <label class="light-label">Fecha inicio <span class="req">*</span></label>
+          <input type="date" name="fecha_inicio" required class="light-input">
+        </div>
+        <div class="field" [hidden]="allDay()">
+          <label class="light-label">Hora inicio <span class="req">*</span></label>
+          <input type="time" name="hora_inicio" class="light-input" [required]="!allDay()">
+        </div>
+        <div class="field">
+          <label class="light-label">Fecha fin <span class="req">*</span></label>
+          <input type="date" name="fecha_fin" required class="light-input">
+        </div>
+        <div class="field" [hidden]="allDay()">
+          <label class="light-label">Hora fin <span class="req">*</span></label>
+          <input type="time" name="hora_fin" class="light-input" [required]="!allDay()">
+        </div>
+        <div class="field full">
+          <label class="light-label">{{ tipo() === 'bloqueo' ? 'Motivo del bloqueo' : 'Descripción' }}</label>
+          <textarea name="descripcion" rows="3" class="light-input"
+                    [placeholder]="tipo() === 'bloqueo' ? 'Ej. Vacaciones del instructor' : 'Detalles adicionales del curso...'"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        @if (editing(); as ev) {
+          <button type="button" class="light-btn-delete" (click)="deleteEvento(ev)">
+            <i class="fa-solid fa-trash"></i> Eliminar
+          </button>
+        }
+        <span class="spacer"></span>
+        <button type="button" class="light-btn-cancel" (click)="closeEventoModal()">Cancelar</button>
+        <button type="submit" class="light-btn-submit" [disabled]="saving()">
+          @if (saving()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> Guardando...
+          } @else {
+            <i class="fa-solid fa-floppy-disk"></i> {{ editing() ? 'Actualizar' : 'Guardar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <div class="calendario-layout">
+
+      <!-- ===== Próximos eventos ===== -->
+      <aside class="upcoming">
+        <div class="upcoming-head">
+          <h2>Próximos eventos</h2>
+          <p>No pierdas de vista la agenda</p>
+        </div>
+
+        <div class="upcoming-actions">
+          <button type="button" class="btn-agendar" (click)="openCreateModal('curso')">
+            <i class="fa-solid fa-calendar-plus"></i> Agendar curso
+          </button>
+          <button type="button" class="btn-bloquear" (click)="openCreateModal('bloqueo')">
+            <i class="fa-solid fa-ban"></i> Bloquear horario
+          </button>
+        </div>
+
+        @switch (upcomingState()) {
+          @case ('loading') {
+            <div class="upcoming-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando eventos...</div>
+          }
+          @case ('error') {
+            <div class="upcoming-empty error"><i class="fa-solid fa-triangle-exclamation"></i> No se pudieron cargar los eventos.</div>
+          }
+          @default {
+            @for (ev of upcoming(); track ev.id) {
+              <article class="event-card" [class]="'kind-' + ev.kind" (click)="openEditModal(ev)">
+                <div class="event-card-top">
+                  <span class="dot"></span>
+                  <span class="event-card-date">{{ ev.dateLabel }} · {{ ev.timeLabel }}</span>
+                  <button type="button" class="event-card-delete" title="Eliminar"
+                          (click)="$event.stopPropagation(); deleteEvento(ev)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+                <h3>
+                  @if (ev.bloqueo) { <i class="fa-solid fa-lock"></i> }
+                  {{ ev.title }}
+                </h3>
+                @if (ev.bloqueo) {
+                  <p>Horario bloqueado — no se pueden agendar cursos</p>
+                } @else {
+                  <p>
+                    {{ ev.raw.cliente || 'Sin cliente' }}
+                    <span class="tag">{{ ev.raw.modalidad || 'presencial' }}</span>
+                  </p>
+                  @if (ev.raw.ubicacion) {
+                    <p class="muted"><i class="fa-solid fa-location-dot"></i> {{ ev.raw.ubicacion }}</p>
+                  }
+                }
+              </article>
+            } @empty {
+              <div class="upcoming-empty">
+                <i class="fa-regular fa-calendar"></i>
+                No hay eventos en los próximos 90 días.
+              </div>
+            }
+          }
+        }
+      </aside>
+
+      <!-- ===== Calendario ===== -->
+      <div class="calendar-card">
+        <div class="calendar-toolbar">
+          <div class="calendar-title">
+            <h2>{{ title() }}</h2>
+            <button type="button" class="nav-btn" aria-label="Anterior" (click)="move(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="nav-btn" aria-label="Siguiente" (click)="move(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" class="today-btn" (click)="goToday()">Hoy</button>
+            @if (state() === 'loading') {
+              <i class="fa-solid fa-circle-notch fa-spin loading-icon"></i>
+            }
+          </div>
+          <div class="view-switch">
+            <button type="button" [class.active]="view() === 'day'" (click)="setView('day')">Día</button>
+            <button type="button" [class.active]="view() === 'week'" (click)="setView('week')">Semana</button>
+            <button type="button" [class.active]="view() === 'month'" (click)="setView('month')">Mes</button>
+          </div>
+        </div>
+
+        @if (state() === 'error') {
+          <div class="calendar-error">
+            <i class="fa-solid fa-triangle-exclamation"></i> Ocurrió un error al cargar el calendario.
+          </div>
+        }
+
+        @if (view() === 'day') {
+          <!-- Vista de día: lista detallada -->
+          @let day = days()[0];
+          <div class="day-view">
+            @for (ev of day.events; track ev.id) {
+              <div class="day-event" [class]="'kind-' + ev.kind" (click)="openEditModal(ev)">
+                <div class="day-event-time">{{ ev.timeLabel }}</div>
+                <div class="day-event-body">
+                  <h3>
+                    @if (ev.bloqueo) { <i class="fa-solid fa-lock"></i> }
+                    {{ ev.title }}
+                  </h3>
+                  @if (!ev.bloqueo) {
+                    <p>
+                      {{ ev.raw.cliente || 'Sin cliente' }} · <span class="tag">{{ ev.raw.modalidad || 'presencial' }}</span>
+                      @if (ev.raw.duracion) { · {{ ev.raw.duracion }} }
+                    </p>
+                    @if (ev.raw.ubicacion) {
+                      <p><i class="fa-solid fa-location-dot"></i> {{ ev.raw.ubicacion }}</p>
+                    }
+                  }
+                  @if (ev.raw.descripcion && !ev.bloqueo) {
+                    <p class="muted">{{ ev.raw.descripcion }}</p>
+                  }
+                  @if (ev.dateLabel.includes('–')) {
+                    <p class="muted"><i class="fa-regular fa-calendar"></i> {{ ev.dateLabel }}</p>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <div class="day-empty">
+                <i class="fa-regular fa-calendar-check"></i>
+                <p>No hay cursos ni bloqueos este día.</p>
+              </div>
+            }
+            <div class="day-actions">
+              <button type="button" class="btn-agendar" (click)="openCreateModal('curso', day.date)">
+                <i class="fa-solid fa-calendar-plus"></i> Agendar curso este día
+              </button>
+              <button type="button" class="btn-bloquear" (click)="openCreateModal('bloqueo', day.date)">
+                <i class="fa-solid fa-ban"></i> Bloquear este día
+              </button>
+            </div>
+          </div>
+        } @else {
+          <!-- Vista de semana / mes -->
+          <div class="calendar-grid" [class.week]="view() === 'week'">
+            @for (w of weekdays; track w) {
+              <div class="weekday">{{ w }}</div>
+            }
+            @for (day of days(); track day.ymd) {
+              <div class="day-cell" [class.out]="!day.inMonth" [class.today]="day.isToday"
+                   title="Clic para agendar un curso" (click)="openCreateModal('curso', day.date)">
+                <button type="button" class="day-number" title="Ver día"
+                        (click)="$event.stopPropagation(); showDay(day)">{{ day.day }}</button>
+                @for (ev of day.events; track ev.id) {
+                  <div class="cal-event" [class]="'kind-' + ev.kind" [title]="ev.title + ' · ' + ev.timeLabel"
+                       (click)="$event.stopPropagation(); openEditModal(ev)">
+                    <span class="cal-event-title">
+                      @if (ev.bloqueo) { <i class="fa-solid fa-lock"></i> }
+                      {{ ev.title }}
+                    </span>
+                    <span class="cal-event-time">{{ ev.timeLabel }}</span>
+                  </div>
+                }
+                @if (day.hidden > 0) {
+                  <button type="button" class="more-events" (click)="$event.stopPropagation(); showDay(day)">
+                    +{{ day.hidden }} más
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <div class="legend">
+          <span class="kind-presencial"><span class="dot"></span> Presencial</span>
+          <span class="kind-online"><span class="dot"></span> Online</span>
+          <span class="kind-bloqueo"><span class="dot"></span> Bloqueado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

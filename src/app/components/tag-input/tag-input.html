@@ -1,0 +1,21 @@
+<div class="tag-container" [class.compact]="compact()" [class.form-control]="!compact()" (click)="focus()">
+  @for (tag of tags(); track $index) {
+    <span class="tag">
+      <span
+        class="tag-text"
+        title="Doble click para editar"
+        [textContent]="tag"
+        (dblclick)="startEdit($event)"
+        (blur)="finishEdit($event, $index)"
+        (keydown)="onEditKeydown($event)"></span>
+      <i class="fa-solid fa-xmark tag-remove" title="Eliminar" (click)="remove($index, $event)"></i>
+    </span>
+  }
+  <input
+    #tagInput
+    type="text"
+    class="tag-new"
+    [placeholder]="placeholder()"
+    (keydown)="onKeydown($event)"
+    (paste)="onPaste($event)">
+</div>

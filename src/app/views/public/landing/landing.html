@@ -1,0 +1,266 @@
+<!-- ===== NAVBAR ===== -->
+<app-navbar active="inicio" (cotizar)="openModal()" />
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero" id="inicio">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-circle"></i>
+        Certificaciones con validez oficial
+      </div>
+      <h1 class="hero-title">
+        Capacítate en <span class="highlight">Seguridad Industrial</span> con Expertos.
+      </h1>
+      <p class="hero-description">
+        Formación profesional para proteger vidas y cumplir con normativas de seguridad laboral. Cursos presenciales y en línea diseñados para la industria moderna.
+      </p>
+      <div class="hero-buttons">
+        <a href="/#cursos" class="btn-primary" (click)="scrollTo($event, 'cursos')">
+          Ver Cursos <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="/#servicios" class="btn-outline" (click)="scrollTo($event, 'servicios')">
+          <i class="fa-solid fa-play"></i> Conoce Más
+        </a>
+      </div>
+      <div class="hero-stats" #heroStats>
+        @for (stat of stats; track stat.label; let i = $index) {
+          <div class="stat-item">
+            <div class="stat-number">{{ statValues()[i] }}{{ stat.suffix }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        }
+      </div>
+      <div class="hero-nav-dots">
+        <div class="dot active"><i class="fa-solid fa-arrow-right"></i></div>
+        <div class="dot"><i class="fa-solid fa-minus"></i></div>
+        <div class="dot"><i class="fa-solid fa-plus"></i></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image-wrapper">
+        <img #heroImg src="assets/images/hero_instructor.png" alt="Instructor de seguridad industrial capacitando a trabajadores">
+        <div class="hero-image-overlay"></div>
+      </div>
+      <div class="hero-float-card">
+        <div class="card-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="card-text">
+          <h4>Certificación STPS</h4>
+          <p>Validez oficial en todo México</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVICES SECTION ===== -->
+<section class="services" id="servicios">
+  <div class="container">
+    <div class="services-left animate-on-scroll">
+      <div class="section-label">
+        <span>Servicios</span>
+        <span class="label-line"></span>
+      </div>
+      <h2 class="services-title">Protege a tu Equipo con Capacitación Profesional.</h2>
+      <p class="services-description">
+        Nuestros programas de capacitación están diseñados para reducir riesgos, cumplir con la normatividad vigente y crear una cultura de prevención en tu empresa.
+      </p>
+      <a href="/#inscripcion" class="btn-primary-light" (click)="scrollTo($event, 'inscripcion')">
+        Comenzar Ahora <i class="fa-solid fa-arrow-right"></i>
+      </a>
+      <div class="services-tabs">
+        <div class="tab active"><i class="fa-solid fa-hard-hat"></i></div>
+        <div class="tab"><i class="fa-solid fa-user-shield"></i></div>
+        <div class="tab"><i class="fa-solid fa-fire-extinguisher"></i></div>
+        <div class="tab"><i class="fa-solid fa-first-aid"></i></div>
+        <div class="tab"><i class="fa-solid fa-ellipsis"></i></div>
+      </div>
+    </div>
+    <div class="services-right">
+      <!-- Card 1 -->
+      <div class="service-card animate-on-scroll animate-delay-1">
+        <div class="service-card-image">
+          <img src="assets/images/worker_safety.png" alt="Capacitación presencial en seguridad industrial">
+          <div class="card-badge">
+            <i class="fa-solid fa-certificate"></i> Curso Presencial
+          </div>
+        </div>
+        <div class="service-card-content">
+          <div class="service-card-header">
+            <div class="icon-circle"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div>
+              <h3>Capacitación Presencial</h3>
+              <span>Cursos en sitio</span>
+            </div>
+          </div>
+          <p>Instrucción práctica directamente en tus instalaciones. Nuestros expertos evalúan riesgos reales y forman a tu equipo con protocolos de seguridad actualizados.</p>
+          <a href="#" class="service-card-link" (click)="$event.preventDefault()">
+            Más información <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <!-- Card 2 (Capacitación en Línea) deshabilitada en el sitio original -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES SECTION ===== -->
+<section class="features" id="nosotros">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-item animate-on-scroll animate-delay-1">
+        <div class="feature-icon">
+          <i class="fa-solid fa-chalkboard-user"></i>
+        </div>
+        <h3>Clases en Vivo</h3>
+        <p>Sesiones interactivas con instructores certificados en seguridad industrial y salud ocupacional.</p>
+      </div>
+      <div class="feature-item animate-on-scroll animate-delay-2">
+        <div class="feature-icon">
+          <i class="fa-solid fa-video"></i>
+        </div>
+        <h3>Sesiones Grabadas</h3>
+        <p>Acceso ilimitado a contenido grabado para repasar los temas cuando lo necesites.</p>
+      </div>
+      <div class="feature-item animate-on-scroll animate-delay-3">
+        <div class="feature-icon">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <h3>Cursos Interactivos</h3>
+        <p>Ejercicios prácticos, simulaciones y evaluaciones para garantizar el aprendizaje efectivo.</p>
+      </div>
+      <div class="feature-item animate-on-scroll animate-delay-4">
+        <div class="feature-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3>Seguimiento de Avance</h3>
+        <p>Monitorea el progreso de capacitación de tu equipo con reportes detallados en tiempo real.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COURSES SECTION ===== -->
+<section class="courses" id="cursos" style="overflow-x: hidden;">
+  <div class="container">
+    <div class="courses-header animate-on-scroll">
+      <div class="section-label">
+        <span>Nuestros Cursos</span>
+        <span class="label-line"></span>
+      </div>
+      <h2>Nuestros Cursos</h2>
+      <p>Programas diseñados para cumplir con las Normas Oficiales Mexicanas y estándares internacionales de seguridad.</p>
+    </div>
+  </div>
+
+  <div class="carousel-container">
+    <div class="carousel-track" id="index-courses-container">
+      @switch (coursesState()) {
+        @case ('loading') {
+          <div style="width: 100%; text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+            <p>Cargando cursos...</p>
+          </div>
+        }
+        @case ('empty') {
+          <div style="width: 100%; text-align: center; padding: 40px; color: var(--text-muted);"><p>No hay cursos disponibles por el momento.</p></div>
+        }
+        @case ('error') {
+          <div style="width: 100%; text-align: center; padding: 40px; color: var(--text-muted);"><p>Hubo un error al cargar la información.</p></div>
+        }
+        @default {
+          @for (curso of courses(); track $index) {
+            <app-course-card [curso]="curso" [index]="$index" />
+          }
+        }
+      }
+    </div>
+  </div>
+
+  <div class="container">
+    <div style="text-align: center; margin-top: 30px;">
+      <a routerLink="/cursos" class="btn-primary">Ver Todos los Cursos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="cta-section" id="inscripcion">
+  <div class="container">
+    <div class="cta-banner animate-on-scroll">
+      <div class="cta-content">
+        <h2>¿Listo para capacitar a tu equipo?</h2>
+        <p>Solicita una cotización personalizada para tu empresa. Descuentos especiales para grupos corporativos.</p>
+      </div>
+      <a href="#" class="btn-white" (click)="openModal($event)">
+        Solicitar Cotización <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODAL COTIZAR INDEX ===== -->
+<div id="modal-cotizar-index" class="cotizar-modal" [style.display]="modalOpen() ? 'flex' : 'none'">
+  <div class="cotizar-modal-content">
+    <span class="cotizar-modal-close" (click)="closeModal()">&times;</span>
+    <h2 style="margin-top: 0; margin-bottom: 5px; font-size: 1.5rem; color: #333;">Solicitar Cotización</h2>
+    <form id="form-cotizar-index" #cotizarForm (submit)="submitCotizacion($event)">
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-course-index" class="field-label">Curso de interés</label>
+        <select id="cotizar-course-index" name="course_uuid" required class="field-input" style="background-color: #fff;">
+          @switch (optionsState()) {
+            @case ('loading') { <option value="" disabled selected>Cargando cursos...</option> }
+            @case ('empty') { <option value="" disabled selected>No hay cursos disponibles</option> }
+            @case ('error') { <option value="" disabled selected>Error al cargar cursos</option> }
+            @default {
+              <option value="" disabled selected>Selecciona un curso</option>
+              @for (opt of courseOptions(); track opt.uuid) {
+                <option [value]="opt.uuid">{{ optionLabel(opt) }}</option>
+              }
+            }
+          }
+        </select>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-nombre-index" class="field-label">Nombre</label>
+        <input type="text" id="cotizar-nombre-index" name="nombre" required class="field-input">
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-empresa-index" class="field-label">Empresa (Opcional)</label>
+        <input type="text" id="cotizar-empresa-index" name="empresa" class="field-input">
+      </div>
+      <div class="responsive-flex-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <label for="cotizar-email-index" class="field-label">Email</label>
+          <input type="email" id="cotizar-email-index" name="email" required class="field-input">
+        </div>
+        <div style="flex: 1;">
+          <label for="cotizar-whatsapp-index" class="field-label">WhatsApp (Celular)</label>
+          <input type="tel" id="cotizar-whatsapp-index" name="whatsapp" required class="field-input">
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-participantes-index" class="field-label">No. Participantes</label>
+        <input type="number" id="cotizar-participantes-index" name="num_participantes" required class="field-input" min="1">
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label for="cotizar-adicionales-index" class="field-label">Datos adicionales (Opcional)</label>
+        <textarea id="cotizar-adicionales-index" name="mensaje" rows="3" class="field-input" style="resize: vertical;"></textarea>
+      </div>
+      <div class="modal-buttons-responsive" style="display: flex; gap: 15px; margin-top: 25px; width: 100%; box-sizing: border-box;">
+        <button type="submit" class="btn-primary" id="btn-enviar-cotizar-index" [disabled]="sending()" style="padding: 10px 20px; margin: 0; width: 100%; flex: 1 1 auto; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          @if (sending()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+          } @else {
+            <i class="fa-solid fa-paper-plane"></i> Enviar
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<app-footer />

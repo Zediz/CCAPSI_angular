@@ -1,0 +1,25 @@
+<nav class="navbar" id="navbar" [class.scrolled]="scrolled()">
+  <div class="container">
+    <a routerLink="/" class="navbar-brand">
+      <div><img src="assets/images/logo/logo_h.png" alt="CCAPSI" height="50"></div>
+      <div class="brand-text">CCAP<span>SI</span></div>
+    </a>
+    <div class="navbar-links" id="navLinks" [class.active]="menuOpen()">
+      @for (l of links; track l.key) {
+        @if (l.route) {
+          <a [routerLink]="l.route" [class.active-link]="l.key === active()" (click)="menuOpen.set(false)">{{ l.label }}</a>
+        } @else {
+          <a [href]="'/#' + l.fragment" [class.active-link]="l.key === active()" (click)="goTo($event, l.fragment!)">{{ l.label }}</a>
+        }
+      }
+      @if (!hideCta()) {
+        <a href="#" class="navbar-cta" (click)="onCotizar($event)">Solicita cotización</a>
+      }
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menú" [class.active]="menuOpen()" (click)="menuOpen.set(!menuOpen())">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>

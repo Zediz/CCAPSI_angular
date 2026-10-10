@@ -1,0 +1,42 @@
+<!-- ===== NAVBAR ===== -->
+<app-navbar active="cursos" (cotizar)="goToCotizar()" />
+
+<!-- ===== PAGE HEADER ===== -->
+<section class="page-header" style="padding: 120px 0 60px; background-color: var(--bg-dark); color: white; text-align: center;">
+  <div class="container">
+    <h1 class="page-title">Catálogo de Cursos</h1>
+    <p class="page-subtitle" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Encuentra el programa ideal para tu desarrollo profesional de acuerdo a las Normativas de la STPS.</p>
+  </div>
+</section>
+
+<!-- ===== COURSES SECTION ===== -->
+<section class="courses" id="cursos" style="padding: 60px 0;">
+  <div class="container">
+    <div class="search-container" style="margin-bottom: 30px; text-align: center;">
+      <input type="text" id="course-search" placeholder="Buscar curso por título..." [value]="search()" (input)="search.set($any($event.target).value)">
+    </div>
+    <div class="courses-grid" id="courses-container">
+      @switch (state()) {
+        @case ('loading') {
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+            <p>Cargando cursos...</p>
+          </div>
+        }
+        @case ('error') {
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);"><p>Hubo un error al cargar la información.</p></div>
+        }
+        @default {
+          @for (curso of filteredCourses(); track curso.uuid; let i = $index) {
+            <app-course-card [curso]="curso" [index]="i" />
+          } @empty {
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);"><p>No se encontraron cursos que coincidan con la búsqueda.</p></div>
+          }
+        }
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<app-footer style="margin-top: 50px; display: block;" />

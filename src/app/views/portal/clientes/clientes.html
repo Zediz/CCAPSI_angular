@@ -1,0 +1,281 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Catálogo de</span> Clientes</h1>
+    <p>Consulta, agrega y edita la información fiscal y de contacto de los clientes.</p>
+  </div>
+</header>
+
+<!-- Modal para Agregar / Editar Cliente -->
+<div id="clienteModal" class="modal-overlay light-modal"
+     [style.display]="clienteModal.visible() ? 'flex' : 'none'"
+     [class.shown]="clienteModal.shown()">
+  <div class="modal-content" style="max-width: 960px;">
+    <div class="modal-header">
+      <h3>
+        @if (editMode()) {
+          <i class="fa-solid fa-pen-to-square"></i> Editar Cliente
+        } @else {
+          <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
+        }
+      </h3>
+      <button class="light-close" (click)="closeClienteModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <form id="clienteForm" #clienteForm (submit)="submitCliente($event)">
+      <input type="hidden" name="id">
+
+      <fieldset class="form-block">
+        <legend>Información Fiscal</legend>
+        <div class="form-grid">
+          <div>
+            <label class="light-label">RFC <span class="required">*</span></label>
+            <input type="text" name="rfc" required minlength="12" maxlength="13" class="light-input uppercase"
+                   title="RFC de 12 (moral) o 13 (física) caracteres">
+          </div>
+          <div>
+            <label class="light-label">Razón Social <span class="required">*</span></label>
+            <input type="text" name="razon_social" required maxlength="255" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">CURP</label>
+            <input type="text" name="curp" minlength="18" maxlength="18" class="light-input uppercase">
+          </div>
+          <div class="span-3">
+            <label class="light-label">Régimen Fiscal</label>
+            <select name="regimen_fiscal" class="light-input">
+              <option value=""></option>
+              @for (r of regimenes; track r.clave) {
+                <option [value]="r.clave">{{ r.clave }} - {{ r.descripcion }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <legend>Dirección Fiscal</legend>
+        <div class="form-grid">
+          <div>
+            <label class="light-label">País <span class="required">*</span></label>
+            <input type="text" name="pais" required maxlength="50" value="México" list="paisesList" class="light-input">
+            <datalist id="paisesList">
+              @for (p of paises; track p) {
+                <option [value]="p"></option>
+              }
+            </datalist>
+          </div>
+          <div>
+            <label class="light-label">Código Postal</label>
+            <input type="text" name="codigo_postal" maxlength="10" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Delegación o Municipio</label>
+            <input type="text" name="municipio" maxlength="100" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Localidad</label>
+            <input type="text" name="localidad" maxlength="100" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Estado</label>
+            <input type="text" name="estado" maxlength="100" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Colonia</label>
+            <input type="text" name="colonia" maxlength="100" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Calle</label>
+            <input type="text" name="calle" maxlength="100" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Número Exterior</label>
+            <input type="text" name="numero_exterior" maxlength="20" class="light-input">
+          </div>
+          <div>
+            <label class="light-label">Número Interior</label>
+            <input type="text" name="numero_interior" maxlength="20" class="light-input">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-block">
+        <legend>Contactos</legend>
+        @for (n of contactoSlots; track n) {
+          <div class="form-grid contacto-row">
+            <div>
+              <label class="light-label">
+                @if (n === 1) {
+                  Contacto Principal <span class="required">*</span>
+                } @else {
+                  Contacto {{ n }}
+                }
+              </label>
+              <input type="text" [name]="'contacto_' + n + '_nombre'" [required]="n === 1" maxlength="150" class="light-input">
+            </div>
+            <div>
+              <label class="light-label">Correo Electrónico</label>
+              <input type="email" [name]="'contacto_' + n + '_correo'" maxlength="191" class="light-input">
+            </div>
+            <div>
+              <label class="light-label">Teléfono</label>
+              <input type="tel" [name]="'contacto_' + n + '_telefono'" maxlength="20" class="light-input">
+            </div>
+          </div>
+        }
+      </fieldset>
+
+      <div class="modal-actions">
+        <button type="button" class="light-btn-cancel" (click)="closeClienteModal()">Cancelar</button>
+        <button type="submit" class="light-btn-submit" [disabled]="saving()">
+          @if (saving()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> {{ editMode() ? 'Actualizando...' : 'Guardando...' }}
+          } @else {
+            <i class="fa-solid fa-floppy-disk"></i> {{ editMode() ? 'Actualizar' : 'Agregar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Contactos -->
+<div id="contactosModal" class="modal-overlay light-modal"
+     [style.display]="contactosModal.visible() ? 'flex' : 'none'"
+     [class.shown]="contactosModal.shown()"
+     (click)="closeContactosModal()">
+  <div class="modal-content" style="max-width: 560px;" (click)="$event.stopPropagation()">
+    @if (contactosRow(); as row) {
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-address-book"></i> Contactos de {{ row.razonSocial }}</h3>
+        <button class="light-close" (click)="closeContactosModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <ul class="contactos-list">
+        @for (c of row.contactos; track $index) {
+          <li>
+            <div class="contacto-nombre">
+              {{ c.nombre || 'Sin nombre' }}
+              @if ($first) { <span class="badge-principal">Principal</span> }
+            </div>
+            @if (c.correo) {
+              <a [href]="'mailto:' + c.correo"><i class="fa-regular fa-envelope"></i> {{ c.correo }}</a>
+            }
+            @if (c.telefono) {
+              <a [href]="'tel:' + c.telefono"><i class="fa-solid fa-phone"></i> {{ c.telefono }}</a>
+            }
+          </li>
+        } @empty {
+          <li class="muted">Este cliente no tiene contactos registrados.</li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <div class="form-card" style="max-width: 100%;">
+      <div class="card-toolbar">
+        <h2><i class="fa-solid fa-users"></i> Listado de clientes</h2>
+        <div class="toolbar-actions">
+          <div style="position: relative;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="search" class="form-control toolbar-input" placeholder="Buscar RFC, razón social, contacto..." (input)="onSearch($event)">
+          </div>
+          <button class="btn-add" (click)="openCreateModal()">
+            <i class="fa-solid fa-plus"></i> Agregar Cliente
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="clientesTable">
+          <thead>
+            <tr>
+              <th [class]="sortClass('rfc')" (click)="sortTable('rfc')">RFC <i [class]="sortIcon('rfc')"></i></th>
+              <th [class]="sortClass('razon_social')" (click)="sortTable('razon_social')">Razón Social <i [class]="sortIcon('razon_social')"></i></th>
+              <th [class]="sortClass('regimen_fiscal')" (click)="sortTable('regimen_fiscal')">Régimen Fiscal <i [class]="sortIcon('regimen_fiscal')"></i></th>
+              <th [class]="sortClass('estado')" (click)="sortTable('estado')">Ubicación <i [class]="sortIcon('estado')"></i></th>
+              <th [class]="sortClass('contacto_1_nombre')" (click)="sortTable('contacto_1_nombre')">Contacto Principal <i [class]="sortIcon('contacto_1_nombre')"></i></th>
+              <th style="text-align: center; width: 110px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @switch (state()) {
+              @case ('loading') {
+                <tr>
+                  <td colspan="6" class="loading-state">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <p>Cargando clientes...</p>
+                  </td>
+                </tr>
+              }
+              @case ('error') {
+                <tr>
+                  <td colspan="6" style="text-align: center; color: #ff4757; padding: 2rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Ocurrió un error al cargar los clientes.</p>
+                  </td>
+                </tr>
+              }
+              @default {
+                @for (row of rows(); track row.id) {
+                  <tr class="editable" title="Doble clic para editar" (dblclick)="openEditModal(row)">
+                    <td style="font-weight: 600; white-space: nowrap;">{{ row.rfc }}</td>
+                    <td>{{ row.razonSocial }}</td>
+                    <td>
+                      @if (row.regimen) {
+                        <span class="regimen-clave">{{ row.regimen }}</span>
+                        <span class="muted">{{ row.regimenDescripcion || 'Régimen desconocido' }}</span>
+                      } @else {
+                        <span class="muted">—</span>
+                      }
+                    </td>
+                    <td class="muted">{{ row.ubicacion || '—' }}</td>
+                    <td>
+                      <div class="contacto-cell">
+                        @if (row.contactoPrincipal; as c) {
+                          <div>
+                            <div style="font-weight: 600;">{{ c.nombre || 'Sin nombre' }}</div>
+                            <div class="muted contacto-detalle">
+                              {{ c.correo }}@if (c.correo && c.telefono) { · }{{ c.telefono }}
+                            </div>
+                          </div>
+                        } @else {
+                          <span class="muted">—</span>
+                        }
+                        <button class="btn-contactos" title="Ver contactos"
+                                (click)="$event.stopPropagation(); openContactosModal(row)"
+                                (dblclick)="$event.stopPropagation()">
+                          <i class="fa-solid fa-address-book"></i>
+                          @if (row.contactos.length > 1) { +{{ row.contactos.length - 1 }} }
+                        </button>
+                      </div>
+                    </td>
+                    <td style="text-align: center; white-space: nowrap;" (dblclick)="$event.stopPropagation()">
+                      <button class="row-action row-action-edit" title="Editar cliente" (click)="openEditModal(row)">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button class="row-action row-action-delete" title="Eliminar cliente" (click)="deleteCliente(row)">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                      <i class="fa-solid fa-users" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                      <p>{{ searchTerm() ? 'Ningún cliente coincide con la búsqueda.' : 'Aún no hay clientes registrados.' }}</p>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

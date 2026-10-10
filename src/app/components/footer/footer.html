@@ -1,0 +1,57 @@
+<footer class="footer" id="contacto">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a routerLink="/" style="text-decoration: none; display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+          <img src="assets/images/logo/logo_h.png" alt="CCAPSI" height="40">
+          <div class="brand-text" style="font-size: 1.5rem; margin-bottom: 0;">CCAP<span>SI</span></div>
+        </a>
+        <p>Centro de Capacitación en Seguridad Industrial. Formando profesionales que protegen vidas desde 2015.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/ccapsi.cursos" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/ccapsi" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://wa.me/528332368866" target="_blank" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h4>Cursos</h4>
+        <ul>
+          @for (c of cursos; track c.uuid) {
+            <li><a [routerLink]="['/cursos', c.uuid]">{{ c.label }}</a></li>
+          }
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="/#inicio" (click)="goTo($event, 'inicio')">Inicio</a></li>
+          <li><a href="/#servicios" (click)="goTo($event, 'servicios')">Servicios</a></li>
+          <li><a href="/#nosotros" (click)="goTo($event, 'nosotros')">Sobre Nosotros</a></li>
+          <li><a routerLink="/cursos">Cursos</a></li>
+          <li><a href="/#contacto" (click)="goTo($event, 'contacto')">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="mailto:info@ccapsi.com"><i class="fa-solid fa-envelope"></i> info&#64;ccapsi.com</a></li>
+          <li><a href="tel:+528332368866"><i class="fa-solid fa-phone"></i> 833 236 8866</a></li>
+          <li><a href="#" (click)="$event.preventDefault()"><i class="fa-solid fa-location-dot"></i> Ciudad Tampico, TAMPS</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 CCAPSI. Todos los derechos reservados.</p>
+      <div class="footer-bottom-links">
+        <a href="#" (click)="$event.preventDefault()">Aviso de Privacidad</a>
+        <a href="#" (click)="$event.preventDefault()">Términos y Condiciones</a>
+        <a href="#" (click)="$event.preventDefault()">Política de Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp Sticky Button -->
+<a href="https://wa.me/528332368866" class="whatsapp-sticky" target="_blank" aria-label="Contáctanos por WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>

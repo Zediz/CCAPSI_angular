@@ -1,0 +1,99 @@
+@keyframes modalPopIn {
+  0% { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .responsive-flex-row { flex-direction: column !important; gap: 15px; }
+  .responsive-flex-row > div { width: 100% !important; }
+  .modal-buttons-responsive { flex-direction: column !important; }
+  .modal-buttons-responsive button { width: 100% !important; }
+}
+
+.carousel-container {
+  overflow: hidden;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 20px 0;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: scroll-left 120s linear infinite;
+  padding: 0 2rem;
+}
+
+.carousel-container:hover .carousel-track {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  /* Las tarjetas están duplicadas: se recorre exactamente la mitad del track (menos medio gap) */
+  100% { transform: translateX(calc(-50% - 1rem)); }
+}
+
+.carousel-track ::ng-deep .course-card {
+  width: 350px;
+  flex-shrink: 0;
+  margin-bottom: 0;
+  height: auto;
+}
+
+/* ===== Modal cotizar ===== */
+.cotizar-modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+}
+
+.cotizar-modal-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.cotizar-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover { color: #333; }
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0px;
+  font-weight: 500;
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}

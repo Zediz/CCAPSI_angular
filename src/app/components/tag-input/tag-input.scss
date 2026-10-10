@@ -1,0 +1,76 @@
+:host {
+  display: block;
+}
+
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px;
+  background: #ffffff;
+  min-height: 45px;
+  align-items: center;
+  cursor: text;
+}
+
+.tag {
+  background: #e2e8f0;
+  color: #1e293b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85em;
+  font-family: monospace;
+  transition: all 0.2s;
+}
+
+.tag-text {
+  outline: none;
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+
+  &.editing {
+    border-bottom-color: #1e293b;
+    cursor: text;
+  }
+}
+
+.tag-remove {
+  cursor: pointer;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.tag-new {
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 120px;
+  font-size: 0.85em;
+  background: transparent;
+  color: #1e293b;
+  padding: 4px;
+}
+
+/* Variante del temario (lecciones) */
+.tag-container.compact {
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #f8fafc;
+  min-height: 38px;
+
+  .tag {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  .tag-new {
+    font-size: 0.8rem;
+    padding: 2px;
+  }
+}

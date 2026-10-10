@@ -1,0 +1,16 @@
+#course-search {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+#course-search:focus {
+  border-color: var(--primary, #0056b3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}

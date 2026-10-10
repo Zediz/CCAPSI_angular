@@ -1,0 +1,290 @@
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--dark-surface, #1a1a1a);
+      border-radius: var(--radius-md, 14px);
+      border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+      margin-top: 1.5rem;
+      box-shadow: var(--shadow-card, 0 4px 24px rgba(0,0,0,0.06));
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      text-align: left;
+    }
+
+    .data-table th, .data-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .data-table th {
+      background: var(--dark-card, #222222);
+      color: var(--text-light, #b8b8b8);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .data-table th:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-white, #fff);
+    }
+
+    .data-table th i {
+      margin-left: 6px;
+      font-size: 0.8rem;
+      color: var(--primary, #1a6cff);
+      opacity: 0.5;
+    }
+    .data-table th.sort-asc i.fa-sort-up,
+    .data-table th.sort-desc i.fa-sort-down {
+      opacity: 1;
+    }
+
+    .data-table tbody tr {
+      transition: background 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table td {
+      color: var(--text-white, #fff);
+    }
+
+    .data-table td.muted {
+      color: var(--text-light, #b8b8b8);
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge-success {
+      background: rgba(46, 213, 115, 0.15);
+      color: #2ed573;
+    }
+    .badge-warning {
+      background: rgba(255, 165, 2, 0.15);
+      color: #ffa502;
+    }
+    .badge-primary {
+      background: rgba(26, 108, 255, 0.15);
+      color: var(--primary-light, #4d8dff);
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+      color: var(--text-light, #b8b8b8);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-icon:hover {
+      background: var(--primary, #1a6cff);
+      color: #fff;
+      border-color: var(--primary, #1a6cff);
+      transform: translateY(-2px);
+    }
+
+    .btn-icon.danger:hover {
+      background: #ff4757;
+      border-color: #ff4757;
+      color: #fff;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-light);
+    }
+    
+    .loading-state i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-container {
+      background: var(--dark-card, #222222);
+      border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+      border-radius: var(--radius-lg, 20px);
+      width: 90%;
+      max-width: 600px;
+      padding: 2rem;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-overlay.show .modal-container {
+      transform: translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--text-white, #fff);
+    }
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-light, #b8b8b8);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .btn-close:hover {
+      color: #ff4757;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-dark, rgba(255,255,255,0.08));
+    }
+    
+    .btn-cancel {
+      padding: 10px 20px;
+      border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-white, #fff);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      font-weight: 500;
+    }
+    .btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .btn-save {
+      padding: 10px 20px;
+      background: var(--primary, #1a6cff);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    .btn-save:hover:not(:disabled) {
+      background: var(--primary-hover, #337dff);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26, 108, 255, 0.3);
+    }
+    .btn-save:disabled {
+      background: var(--border-dark, rgba(255,255,255,0.08));
+      color: var(--text-light, #b8b8b8);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Drop Zone modal adjustments */
+    .drop-zones-modal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    /* Gray-scale untill file dropped */
+    .drop-zone .drop-zone-icon svg {
+      transition: all 0.3s ease;
+      filter: grayscale(1) opacity(0.6);
+    }
+    .drop-zone.has-file .drop-zone-icon svg {
+      filter: grayscale(0) opacity(1);
+    }
+
+    /* ===== Clases extraídas de estilos inline repetidos en el portal ===== */
+
+    /* Inputs de búsqueda / rango de fechas en la barra de las tablas */
+    .toolbar-input {
+      padding-left: 35px;
+      width: 230px;
+      font-size: 0.9rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      background: #ffffff;
+      color: #1e293b;
+      box-shadow: none;
+      outline: none;
+    }
+
+    /* Labels e inputs de los modales oscuros (facturas / cursos) */
+    .modal-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+    }
+    .modal-input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px;
+      background: #ffffff;
+      color: #1e293b;
+    }

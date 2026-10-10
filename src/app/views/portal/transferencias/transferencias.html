@@ -1,0 +1,153 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Solicitudes de</span> Transferencia</h1>
+    <p>Consulta las solicitudes de transferencia en el rango de fechas seleccionado.</p>
+  </div>
+</header>
+
+<!-- Modal para Agregar / Editar Transferencia -->
+<div id="transferenciaModal" class="modal-overlay light-modal"
+     [style.display]="transferenciaModal.visible() ? 'flex' : 'none'"
+     [class.shown]="transferenciaModal.shown()">
+  <div class="modal-content" style="max-width: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; font-size: 1.25rem; color: #1e293b;">
+        @if (editMode()) {
+          <i class="fa-solid fa-pen-to-square"></i> Editar Transferencia
+        } @else {
+          <i class="fa-solid fa-money-bill-transfer"></i> Nueva Transferencia
+        }
+      </h3>
+      <button class="light-close" (click)="closeTransferenciaModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <form id="transferenciaForm" #transferenciaForm (submit)="submitTransferencia($event)">
+      <input type="hidden" name="id">
+      <div style="margin-bottom: 1rem;">
+        <label class="light-label">Para <span style="color: red;">*</span></label>
+        <input type="text" name="destino" required maxlength="255" placeholder="Ej. Juan Pérez / Proveedor S.A." class="light-input">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label class="light-label">Descripción</label>
+        <textarea name="descripcion" rows="4" placeholder="Motivo o detalle de la transferencia..." class="light-input" style="resize: vertical; font-family: inherit;"></textarea>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label class="light-label">Cantidad <span style="color: red;">*</span></label>
+        <input type="number" name="cantidad" required min="0.01" max="99999999.99" step="0.01" placeholder="Ej. 1500.00" class="light-input">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="light-btn-cancel" (click)="closeTransferenciaModal()">Cancelar</button>
+        <button type="submit" class="light-btn-submit" [disabled]="saving()">
+          @if (saving()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> {{ editMode() ? 'Actualizando...' : 'Guardando...' }}
+          } @else {
+            <i class="fa-solid fa-paper-plane"></i> {{ editMode() ? 'Actualizar' : 'Guardar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <app-balance style="display: block; margin-bottom: 24px;" (monthChange)="onMonthChange($event)" />
+
+    <div class="form-card" style="max-width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2><i class="fa-solid fa-money-bill-transfer"></i> Listado de transferencias</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div class="date-picker-container" style="position: relative;">
+            <i class="fa-regular fa-calendar" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" id="dateRangePicker" #dateRangePicker class="form-control toolbar-input" placeholder="Selecciona un rango...">
+          </div>
+          <button class="btn-primary" style="padding: 9px 18px; font-size: 0.9rem; background: #2ed573; color: #111; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;" (click)="openCreateModal()">
+            <i class="fa-solid fa-plus"></i> Nueva Transferencia
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="transferenciasTable">
+          <thead>
+            <tr>
+              <th [class]="sortClass('id')" (click)="sortTable('id')" style="width: 80px;">ID <i [class]="sortIcon('id')"></i></th>
+              <th [class]="sortClass('destino')" (click)="sortTable('destino')">Para <i [class]="sortIcon('destino')"></i></th>
+              <th [class]="sortClass('descripcion')" (click)="sortTable('descripcion')" style="max-width: 350px;">Descripción <i [class]="sortIcon('descripcion')"></i></th>
+              <th [class]="sortClass('cantidad')" (click)="sortTable('cantidad')" style="text-align: right;">Cantidad <i [class]="sortIcon('cantidad')"></i></th>
+              <th [class]="sortClass('status')" (click)="sortTable('status')" style="text-align: center;">Status <i [class]="sortIcon('status')"></i></th>
+              <th [class]="sortClass('created_at')" (click)="sortTable('created_at')" style="width: 150px;">Fecha Solicitud <i [class]="sortIcon('created_at')"></i></th>
+              <th [class]="sortClass('fecha_transferencia')" (click)="sortTable('fecha_transferencia')" style="width: 160px;">Fecha de Transfer <i [class]="sortIcon('fecha_transferencia')"></i></th>
+              <th style="text-align: center; width: 110px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="transferenciasBody">
+            @switch (state()) {
+              @case ('loading') {
+                <tr>
+                  <td colspan="8" class="loading-state">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <p>Cargando transferencias...</p>
+                  </td>
+                </tr>
+              }
+              @case ('error') {
+                <tr>
+                  <td colspan="8" style="text-align: center; color: #ff4757; padding: 2rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Ocurrió un error al cargar las transferencias.</p>
+                  </td>
+                </tr>
+              }
+              @default {
+                @for (row of rows(); track row.id) {
+                  <tr [class.editable]="row.editable" [title]="row.editable ? 'Clic para editar' : ''" (click)="openEditModal(row)">
+                    <td class="muted">{{ row.id }}</td>
+                    <td style="font-weight: 600;">{{ row.destino }}</td>
+                    <td style="max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="row.descripcion">{{ row.descripcion }}</td>
+                    <td style="text-align: right; white-space: nowrap; font-weight: 600;">{{ row.cantidad }}</td>
+                    <td style="text-align: center;">
+                      @if (isSadmin && row.pendiente) {
+                        <button type="button" class="status-badge status-clickable" [class]="row.statusClass"
+                                title="Marcar como transferido"
+                                (click)="$event.stopPropagation(); markTransferido(row)">
+                          {{ row.status }} <i class="fa-solid fa-check"></i>
+                        </button>
+                      } @else {
+                        <span class="status-badge" [class]="row.statusClass">{{ row.status }}</span>
+                      }
+                    </td>
+                    <td class="muted" style="white-space: nowrap;">{{ row.fechaSolicitud }}</td>
+                    <td class="muted" style="white-space: nowrap;">{{ row.fechaTransferencia }}</td>
+                    <td style="text-align: center;">
+                      @if (row.editable) {
+                        <button class="row-action row-action-edit" title="Editar transferencia" (click)="$event.stopPropagation(); openEditModal(row)">
+                          <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="row-action row-action-delete" title="Eliminar transferencia" (click)="$event.stopPropagation(); deleteTransferencia(row)">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      } @else {
+                        <span class="muted">—</span>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                      <i class="fa-solid fa-money-bill-transfer" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                      <p>No se encontraron solicitudes de transferencia en el rango seleccionado.</p>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

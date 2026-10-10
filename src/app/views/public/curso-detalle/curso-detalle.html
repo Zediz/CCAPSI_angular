@@ -1,0 +1,238 @@
+<!-- ===== NAVBAR ===== -->
+<app-navbar active="cursos" [hideCta]="true" (cotizar)="goToCotizar()" />
+
+<!-- ===== COURSE HERO ===== -->
+<section class="course-hero">
+  <div class="container course-hero-container">
+    <div class="course-hero-content">
+      <div class="breadcrumbs">
+        <a routerLink="/">Inicio</a> <i class="fa-solid fa-chevron-right"></i>
+        <a routerLink="/cursos">Cursos</a> <i class="fa-solid fa-chevron-right"></i>
+        <span id="course-breadcrumb-category">{{ course() ? course()!.category : 'Cargando...' }}</span>
+      </div>
+      <h1 class="course-title" id="course-hero-title">{{ heroTitle() }}</h1>
+      <p class="course-subtitle" id="course-hero-subtitle">{{ heroSubtitle() }}</p>
+      <div class="course-meta-top">
+        <span class="badge-best-seller">Mejor valorados</span>
+        <span class="created-by">Creado por <a href="#" id="course-hero-instructor" (click)="$event.preventDefault()">{{ course() ? course()!.instructor : 'Cargando...' }}</a></span>
+      </div>
+      <div class="course-meta-bottom">
+        <span><i class="fa-solid fa-calendar-alt"></i> Última actualización: <span id="course-hero-date">10/2026</span></span>
+        <span><i class="fa-solid fa-globe"></i> Español</span>
+        <span><i class="fa-solid fa-closed-captioning"></i> Español [Automático]</span>
+      </div>
+    </div>
+
+    <div class="course-hero-media">
+      @if (course(); as c) {
+        <img [src]="c.image_url" [alt]="c.title" id="course-hero-image" style="display: block;">
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== COURSE BODY ===== -->
+<section class="course-body">
+  <div class="container course-layout">
+
+    <!-- MAIN CONTENT LEFT -->
+    <div class="course-main-content">
+      <div class="course-premium-banner">
+        <div class="banner-icon"><i class="fa-solid fa-award"></i></div>
+        <div class="banner-text">
+          <h4>Certificación con Validez Oficial</h4>
+          <p>Accede a constancia DC-3 STPS y diploma curricular al finalizar este curso con instructores certificados.</p>
+        </div>
+        <div class="banner-stats">
+          <div class="stat-item">
+            <span class="stat-rating"><span id="course-banner-rating">{{ course() ? (course()!.rating || '0.0') : '' }}</span> <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></span>
+            <a href="#" (click)="$event.preventDefault()"><span id="course-banner-reviews">{{ course() ? (course()!.reviews_count || '0') : '' }}</span> valoraciones</a>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="course-banner-students">{{ course() ? (course()!.students_count || '0') : '' }}</span>
+            <span class="stat-label">de estudiantes</span>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Resumen del curso</h2>
+      <div class="course-summary-grid">
+        <div class="summary-item"><i class="fa-solid fa-clock"></i> <span id="course-duration">{{ course() ? 'Duracion ' + course()!.duration_hours + ' horas' : 'Cargando...' }}</span></div>
+        <div class="summary-item"><i class="fa-solid fa-file-pdf"></i> <span id="course-materials">{{ course() ? course()!.materials_included : 'Cargando...' }}</span></div>
+        <div class="summary-item"><i class="fa-solid fa-certificate"></i> <span id="course-certification">{{ course() ? course()!.certification_type : 'Cargando...' }}</span></div>
+        <div class="summary-item"><i class="fa-solid fa-laptop-house"></i> <span id="course-modality">{{ course() ? course()!.modalidad : 'Cargando...' }}</span></div>
+      </div>
+
+      <h2 class="section-title">Contenido del curso</h2>
+      <div class="course-accordion" id="course-accordion">
+        @for (modulo of course()?.temario ?? []; track $index; let i = $index) {
+          <div class="accordion-item" [class.open]="openModules().has(i)">
+            <div class="accordion-header" (click)="toggleModule(i)">
+              <div class="accordion-title">
+                <i class="fa-solid" [class.fa-chevron-up]="openModules().has(i)" [class.fa-chevron-down]="!openModules().has(i)"></i>
+                <span>{{ modulo.title }}</span>
+              </div>
+              <div class="accordion-meta">{{ modulo.meta }}</div>
+            </div>
+            <div class="accordion-content">
+              <div class="accordion-content-inner">
+                <ul>
+                  @for (lesson of modulo.lessons; track $index) {
+                    <li><i class="fa-solid fa-play-circle"></i> {{ lesson }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <h2 class="section-title mt-4">Requisitos y Nivel</h2>
+      <ul class="requirements-list" id="course-requirements">
+        @for (req of course()?.requisitos ?? []; track $index) {
+          <li [innerHTML]="formatRequisito(req)"></li>
+        }
+      </ul>
+    </div> <!-- / MAIN CONTENT -->
+
+    <!-- SIDEBAR RIGHT (Sticky Pricing) -->
+    <div class="course-sidebar">
+      <div class="pricing-card" #pricingCard>
+        <div class="pricing-header">
+          <h3>Para empresas</h3>
+          <span class="badge-plus">Presencial</span>
+        </div>
+        <button class="btn-comprar" id="btn-open-cotizar" (click)="cotizarOpen.set(true)">Cotizar grupo</button>
+
+        <div class="pricing-features">
+          <p><strong>Entregables:</strong></p>
+          <ul id="course-features">
+            @for (feat of course()?.beneficios ?? []; track $index) {
+              <li><i class="fa-solid fa-check"></i> {{ feat }}</li>
+            }
+          </ul>
+        </div>
+
+        <hr class="pricing-divider">
+
+        <div class="pricing-header">
+          <h3>Curso Individual</h3>
+          <span class="badge-plus">Presencial</span>
+        </div>
+        <p class="pricing-regular-desc">Da click aqui para que te avisemos cuando se abre una nueva fecha</p>
+
+        <button class="btn-outline-dark" id="btn-open-interesado" (click)="interesadoOpen.set(true)">Me interesa</button>
+
+        <div class="pricing-footer-list mt-4">
+          <ul>
+            <li><i class="fa-solid fa-thumbs-up"></i> {{ course() ? (course()!.reviews_count || '0') : '' }} valoraciones positivas</li>
+            <li><i class="fa-solid fa-user-group"></i> {{ course() ? (course()!.students_count || '0') : '' }} estudiantes CCAPSI</li>
+            <li><i class="fa-solid fa-book-open"></i> {{ course() ? (course()!.lecciones || '0') : '' }} lecciones (Total {{ course() ? (course()!.duration_hours || '0') : '' }}h)</li>
+            <li><i class="fa-solid fa-desktop"></i> {{ course() ? (course()!.modalidad || 'N/A') : '' }}</li>
+          </ul>
+        </div>
+      </div>
+    </div> <!-- / SIDEBAR -->
+
+  </div>
+</section>
+
+<!-- ===== MODAL COTIZAR ===== -->
+<div id="modal-cotizar" class="public-modal" [style.display]="cotizarOpen() ? 'flex' : 'none'">
+  <div class="public-modal-content">
+    <span class="public-modal-close" (click)="closeCotizar()">&times;</span>
+    <h2 style="margin-top: 0; margin-bottom: 5px; font-size: 1.5rem; color: #333;">Cotizar grupo</h2>
+    <form id="form-cotizar" #cotizarForm (submit)="submitCotizar($event)">
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-nombre" class="field-label">Nombre</label>
+        <input type="text" id="cotizar-nombre" name="nombre" required class="field-input">
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-empresa" class="field-label">Empresa (Opcional)</label>
+        <input type="text" id="cotizar-empresa" name="empresa" class="field-input">
+      </div>
+      <div class="responsive-flex-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <label for="cotizar-email" class="field-label">Email</label>
+          <input type="email" id="cotizar-email" name="email" required class="field-input">
+        </div>
+        <div style="flex: 1;">
+          <label for="cotizar-whatsapp" class="field-label">WhatsApp (Celular)</label>
+          <input type="tel" id="cotizar-whatsapp" name="whatsapp" required class="field-input">
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="cotizar-participantes" class="field-label">No. Participantes</label>
+        <input type="number" id="cotizar-participantes" name="num_participantes" required class="field-input" min="1">
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label for="cotizar-adicionales" class="field-label">Datos adicionales (Opcional)</label>
+        <textarea id="cotizar-adicionales" name="mensaje" rows="3" class="field-input" style="resize: vertical;"></textarea>
+      </div>
+      <div class="modal-buttons-responsive" style="display: flex; gap: 15px; margin-top: 25px; width: 100%; box-sizing: border-box;">
+        <button type="submit" class="btn-comprar" id="btn-enviar-cotizar" [disabled]="sendingCotizar()" style="padding: 10px 20px; margin: 0; width: 100%; flex: 1 1 auto; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          @if (sendingCotizar()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+          } @else {
+            <i class="fa-solid fa-paper-plane"></i> Enviar
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL INTERESADO ===== -->
+<div id="modal-interesado" class="public-modal" [style.display]="interesadoOpen() ? 'flex' : 'none'">
+  <div class="public-modal-content">
+    <span class="public-modal-close" (click)="closeInteresado()">&times;</span>
+    <h2 style="margin-top: 0; margin-bottom: 5px; font-size: 1.5rem; color: #333;">Me interesa</h2>
+    <form id="form-interesado" #interesadoForm (submit)="submitInteresado($event)">
+      <div style="margin-bottom: 15px;">
+        <label for="interesado-nombre" class="field-label">Nombre</label>
+        <input type="text" id="interesado-nombre" name="nombre" required class="field-input">
+      </div>
+      <div class="responsive-flex-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <label for="interesado-email" class="field-label">Email (Opcional)</label>
+          <input type="email" id="interesado-email" name="email" class="field-input">
+        </div>
+        <div style="flex: 1;">
+          <label for="interesado-whatsapp" class="field-label">WhatsApp (Celular)</label>
+          <input type="tel" id="interesado-whatsapp" name="whatsapp" required class="field-input">
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label for="interesado-disponibilidad" class="field-label">Disponibilidad</label>
+        <select id="interesado-disponibilidad" name="disponibilidad" required class="field-input" style="background-color: #fff;">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="entre semana">Entre semana</option>
+          <option value="fines de semana">Fines de semana</option>
+          <option value="cualquier dia">Cualquier día</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label for="interesado-mensaje" class="field-label">Mensaje</label>
+        <textarea id="interesado-mensaje" name="mensaje" rows="3" class="field-input" style="resize: vertical;"></textarea>
+      </div>
+      <div class="modal-buttons-responsive" style="display: flex; gap: 15px; margin-top: 25px; width: 100%; box-sizing: border-box;">
+        <button type="submit" class="btn-comprar" id="btn-enviar-interesado" [disabled]="sendingInteresado()" style="padding: 10px 20px; margin: 0; width: 100%; flex: 1 1 auto; display: flex; justify-content: center; align-items: center; gap: 8px;">
+          @if (sendingInteresado()) {
+            <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+          } @else {
+            <i class="fa-solid fa-paper-plane"></i> Enviar
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<app-footer style="margin-top: 50px; display: block;" />
+
+<!-- ===== MOBILE STICKY FOOTER ===== -->
+<div class="mobile-sticky-footer" [class.hidden]="stickyHidden()">
+  <button class="btn-comprar" id="btn-open-cotizar-sticky" (click)="cotizarOpen.set(true)">Cotizar curso</button>
+  <button class="btn-outline-dark" id="btn-open-interesado-sticky" (click)="interesadoOpen.set(true)">Cotizar individual</button>
+</div>

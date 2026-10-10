@@ -1,0 +1,230 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Facturas</span></h1>
+    <p>Consulta y gestiona las facturas electrónicas de tus clientes.</p>
+  </div>
+</header>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <app-balance style="display: block; margin-bottom: 24px;" (monthChange)="onMonthChange($event)" />
+
+    <div class="form-card" style="max-width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+        <h2><i class="fa-solid fa-file-invoice-dollar"></i> Listado de facturas</h2>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div class="search-container" style="position: relative;">
+            <i class="fa-solid fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" id="searchInput" class="form-control toolbar-input" placeholder="Buscar Razón o RFC..." [value]="search()" (input)="search.set($any($event.target).value)">
+          </div>
+          <div class="date-picker-container" style="position: relative;">
+            <i class="fa-regular fa-calendar" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" id="dateRangePicker" #dateRangePicker class="form-control toolbar-input" placeholder="Selecciona un rango...">
+          </div>
+          <button class="btn-primary" style="padding: 9px 18px; font-size: 0.9rem; background: #2ed573; color: #111;" (click)="openAddModal()">
+            <i class="fa-solid fa-plus"></i> Agregar Factura
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="facturasTable">
+          <thead>
+            <tr>
+              <th [class]="sortClass('serie')" (click)="sortTable('serie')" style="width: 90px;">Folio <i [class]="sortIcon('serie')"></i></th>
+              <th [class]="sortClass('fecha_emision')" (click)="sortTable('fecha_emision')">Fecha <i [class]="sortIcon('fecha_emision')"></i></th>
+              <th [class]="sortClass('receptor_nombre')" (click)="sortTable('receptor_nombre')" style="min-width: 150px; max-width: 200px;">Razón Social <i [class]="sortIcon('receptor_nombre')"></i></th>
+              <th [class]="sortClass('subtotal')" (click)="sortTable('subtotal')">Subtotal <i [class]="sortIcon('subtotal')"></i></th>
+              <th [class]="sortClass('total')" (click)="sortTable('total')">Total <i [class]="sortIcon('total')"></i></th>
+              <th [class]="sortClass('utilidad_neta')" (click)="sortTable('utilidad_neta')">Utilidad Neta <i [class]="sortIcon('utilidad_neta')"></i></th>
+              <th style="text-align: center;">Descarga</th>
+              <th style="text-align: center;">Enviar</th>
+              <th style="text-align: center;">Pagada</th>
+              <th style="text-align: center;">Eliminar</th>
+            </tr>
+          </thead>
+          <tbody id="facturasBody">
+            @switch (state()) {
+              @case ('loading') {
+                <tr>
+                  <td colspan="10" class="loading-state">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <p>Cargando facturas...</p>
+                  </td>
+                </tr>
+              }
+              @case ('error') {
+                <tr>
+                  <td colspan="10" style="text-align: center; color: #ff4757; padding: 2rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Ocurrió un error al cargar las facturas.</p>
+                  </td>
+                </tr>
+              }
+              @default {
+                @for (row of rows(); track row.uuid) {
+                  <tr>
+                    <td style="font-weight: 600; white-space: nowrap;">{{ row.folio }}</td>
+                    <td class="muted">{{ row.fecha }}</td>
+                    <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="row.receptor">{{ row.receptor }}</td>
+                    <td style="color: #94a3b8;">{{ row.subtotal }}</td>
+                    <td style="font-weight: 600; color: #00c8ff;">{{ row.total }}</td>
+                    <td style="font-weight: 600; color: #2ed573;">{{ row.utilidadNeta }}</td>
+                    <td>
+                      <div class="actions-cell" style="justify-content: center; gap: 8px;">
+                        <button class="btn-icon" title="Descargar XML" (click)="downloadXML(row.uuid)">
+                          <i class="fa-solid fa-code"></i>
+                        </button>
+                        <button class="btn-icon" title="Descargar PDF" (click)="downloadPDF(row.uuid)">
+                          <i class="fa-solid fa-file-pdf"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="actions-cell" style="justify-content: center; gap: 8px;">
+                        <button class="btn-icon" title="Enviar Factura" (click)="enviarFactura(row)">
+                          @if (row.isEnviada) {
+                            <i class="fa-solid fa-envelope-circle-check" style="color: #2ed573;"></i>
+                          } @else {
+                            <i class="fa-solid fa-envelope"></i>
+                          }
+                        </button>
+                      </div>
+                    </td>
+                    <td style="text-align: center; cursor: pointer; user-select: none;" (click)="togglePagada(row)">
+                      <span style="font-size: 1.2rem;" [title]="'Marcar como ' + (row.isPagada ? 'no pagada' : 'pagada')">{{ row.isPagada ? '✅' : '❌' }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <button class="btn-icon" title="Eliminar Factura" (click)="deleteFactura(row)" style="color: #ff4757;">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="10" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                      <i class="fa-solid fa-box-open" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                      <p>No se encontraron facturas registradas.</p>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+          @if (state() === 'ready' && rows().length > 0) {
+            <tfoot id="facturasFooter">
+              <tr style="font-weight: 700; border-top: 2px solid var(--border-dark);">
+                <td colspan="3" style="padding: 12px 16px; color: var(--text-light);">Totales</td>
+                <td style="padding: 12px 8px; color: #94a3b8;">{{ totals().subtotal }}</td>
+                <td style="padding: 12px 8px; color: #00c8ff; font-size: 1.05rem;">{{ totals().total }}</td>
+                <td style="padding: 12px 8px; color: #2ed573; font-size: 1.05rem;">{{ totals().utilidadNeta }}</td>
+                <td colspan="4"></td>
+              </tr>
+            </tfoot>
+          }
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ADD FACTURA MODAL ===== -->
+<div class="modal-overlay" id="addFacturaModal" [class.show]="addModalOpen()" (click)="$event.target === $event.currentTarget && closeAddModal()">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-upload"></i> Agregar Factura</h3>
+      <button class="btn-close" (click)="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="drop-zones-modal" id="modalDropZones">
+      <!-- PDF Drop Zone -->
+      <div class="drop-zone" id="pdfDropZone"
+           [class.has-file]="files().pdf" [class.drag-over]="dragOver() === 'pdf'"
+           (click)="openFilePicker('pdf')" (dragover)="onDragOver('pdf', $event)"
+           (dragleave)="dragOver.set(null)" (drop)="onDrop('pdf', $event)">
+        <button type="button" class="remove-file-btn" title="Quitar archivo" (click)="removeFile('pdf', $event)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="drop-zone-icon pdf-icon">
+          <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 0H10C4.5 0 0 4.5 0 10v80c0 5.5 4.5 10 10 10h60c5.5 0 10-4.5 10-10V30L50 0z" fill="#E53E3E"/>
+            <path d="M50 0v20c0 5.5 4.5 10 10 10h20L50 0z" fill="#C53030"/>
+            <text x="40" y="72" text-anchor="middle" fill="white" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="20">PDF</text>
+          </svg>
+        </div>
+        <div class="drop-zone-label">Archivo PDF</div>
+        <div class="drop-zone-hint">Clic o arrastrar</div>
+        <div class="drop-zone-filename"><i class="fa-solid fa-check-circle"></i> <span>{{ files().pdf?.name }}</span></div>
+        <input type="file" accept=".pdf" style="display:none;" id="pdfFileInput" #pdfFileInput (click)="$event.stopPropagation()" (change)="onFileSelected('pdf', $event)">
+      </div>
+
+      <!-- XML Drop Zone -->
+      <div class="drop-zone" id="xmlDropZone"
+           [class.has-file]="files().xml" [class.drag-over]="dragOver() === 'xml'"
+           (click)="openFilePicker('xml')" (dragover)="onDragOver('xml', $event)"
+           (dragleave)="dragOver.set(null)" (drop)="onDrop('xml', $event)">
+        <button type="button" class="remove-file-btn" title="Quitar archivo" (click)="removeFile('xml', $event)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="drop-zone-icon xml-icon">
+          <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 0H10C4.5 0 0 4.5 0 10v80c0 5.5 4.5 10 10 10h60c5.5 0 10-4.5 10-10V30L50 0z" fill="#38A169"/>
+            <path d="M50 0v20c0 5.5 4.5 10 10 10h20L50 0z" fill="#2F855A"/>
+            <text x="40" y="72" text-anchor="middle" fill="white" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="20">XML</text>
+          </svg>
+        </div>
+        <div class="drop-zone-label">Archivo XML</div>
+        <div class="drop-zone-hint">Clic o arrastrar</div>
+        <div class="drop-zone-filename"><i class="fa-solid fa-check-circle"></i> <span>{{ files().xml?.name }}</span></div>
+        <input type="file" accept=".xml" style="display:none;" id="xmlFileInput" #xmlFileInput (click)="$event.stopPropagation()" (change)="onFileSelected('xml', $event)">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeAddModal()">Cancelar</button>
+      <button class="btn-save" id="btnSaveFactura" [disabled]="saving() || !files().pdf || !files().xml" (click)="saveFactura()">
+        @if (saving()) {
+          <i class="fa-solid fa-spinner fa-spin"></i> Guardando...
+        } @else {
+          Guardar
+        }
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEND FACTURA MODAL ===== -->
+<div class="modal-overlay" id="sendFacturaModal" [class.show]="sendModalOpen()" (click)="$event.target === $event.currentTarget && closeSendModal()">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-paper-plane"></i> Enviar Factura</h3>
+      <button class="btn-close" (click)="closeSendModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+      <div>
+        <label for="sendFacturaNombre" class="modal-label">Nombre del cliente</label>
+        <input type="text" id="sendFacturaNombre" class="form-control modal-input" placeholder="Nombre completo" [value]="sendNombre()" (input)="sendNombre.set($any($event.target).value)">
+      </div>
+      <div>
+        <label for="sendFacturaEmail" class="modal-label">Correo electrónico (separados por coma)</label>
+        <input type="text" id="sendFacturaEmail" class="form-control modal-input" placeholder="ejemplo1@correo.com, ejemplo2@correo.com" [value]="sendEmail()" (input)="sendEmail.set($any($event.target).value)">
+      </div>
+      <div>
+        <label for="sendFacturaMensaje" class="modal-label">Mensaje (opcional)</label>
+        <textarea id="sendFacturaMensaje" class="form-control modal-input" rows="4" placeholder="Algún mensaje adicional..." style="resize: vertical; font-family: inherit; font-size: inherit;" [value]="sendMensaje()" (input)="sendMensaje.set($any($event.target).value)"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeSendModal()">Cancelar</button>
+      <button class="btn-save" id="btnConfirmSendFactura" [disabled]="sending()" (click)="confirmEnviarFactura()">
+        @if (sending()) {
+          <i class="fa-solid fa-spinner fa-spin"></i> Enviando...
+        } @else {
+          Enviar
+        }
+      </button>
+    </div>
+  </div>
+</div>

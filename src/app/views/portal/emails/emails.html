@@ -1,0 +1,141 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Correos</span></h1>
+    <p>Consulta los correos recibidos y marca los que ya fueron respondidos.</p>
+  </div>
+</header>
+
+<!-- Modal para ver el correo -->
+<div id="emailModal" class="modal-overlay light-modal"
+     [style.display]="emailModal.visible() ? 'flex' : 'none'"
+     [class.shown]="emailModal.shown()"
+     (click)="closeEmail()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    @if (selectedView(); as email) {
+      <div class="modal-header">
+        <h3 class="ellipsis" [title]="email.asunto"><i class="fa-solid fa-envelope-open-text"></i> {{ email.asunto }}</h3>
+        <button class="light-close" (click)="closeEmail()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="email-meta">
+        <div><span>De:</span> {{ email.de }}</div>
+        <div><span>Para:</span> {{ email.para }}</div>
+        <div><span>Recibido:</span> {{ email.recibido }}</div>
+        @if (email.isReplied) {
+          <div><span>Respondido:</span> {{ email.respondido }}</div>
+        }
+      </div>
+
+      <div class="email-body">
+        @if (loadingEmail()) {
+          <div class="email-placeholder"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando correo...</div>
+        } @else if (email.html) {
+          <iframe [srcdoc]="email.html" sandbox="allow-popups allow-popups-to-escape-sandbox" title="Contenido del correo"></iframe>
+        } @else if (email.text) {
+          <pre>{{ email.text }}</pre>
+        } @else {
+          <div class="email-placeholder">Este correo no tiene contenido.</div>
+        }
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="light-btn-cancel" (click)="closeEmail()">Cerrar</button>
+        <button type="button" class="light-btn-submit" (click)="toggleResponded(email.id)">
+          @if (email.isReplied) {
+            <i class="fa-solid fa-rotate-left"></i> Marcar como no respondido
+          } @else {
+            <i class="fa-solid fa-check"></i> Marcar como respondido
+          }
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container" style="max-width: 100%;">
+    <div class="form-card" style="max-width: 100%;">
+      <div class="card-toolbar">
+        <h2><i class="fa-solid fa-envelope"></i> Listado de correos</h2>
+        <div class="toolbar-actions">
+          <div style="position: relative;">
+            <i class="fa-solid fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" class="form-control toolbar-input" placeholder="Buscar remitente o asunto..." [value]="search()" (input)="search.set($any($event.target).value)">
+          </div>
+          <div style="position: relative;">
+            <i class="fa-regular fa-calendar" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+            <input type="text" #dateRangePicker class="form-control toolbar-input" placeholder="Selecciona un rango...">
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="emailsTable">
+          <thead>
+            <tr>
+              <th [class]="sortClass('received_at')" (click)="sortTable('received_at')">Recibido <i [class]="sortIcon('received_at')"></i></th>
+              <th [class]="sortClass('from_name')" (click)="sortTable('from_name')" style="min-width: 150px;">Remitente <i [class]="sortIcon('from_name')"></i></th>
+              <th [class]="sortClass('subject')" (click)="sortTable('subject')" style="min-width: 200px;">Asunto <i [class]="sortIcon('subject')"></i></th>
+              <th [class]="sortClass('to_email')" (click)="sortTable('to_email')">Para <i [class]="sortIcon('to_email')"></i></th>
+              <th [class]="sortClass('is_replied')" (click)="sortTable('is_replied')" style="text-align: center;">Respondido <i [class]="sortIcon('is_replied')"></i></th>
+            </tr>
+          </thead>
+          <tbody>
+            @switch (state()) {
+              @case ('loading') {
+                <tr>
+                  <td colspan="5" class="loading-state">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <p>Cargando correos...</p>
+                  </td>
+                </tr>
+              }
+              @case ('error') {
+                <tr>
+                  <td colspan="5" style="text-align: center; color: #ff4757; padding: 2rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>Ocurrió un error al cargar los correos.</p>
+                  </td>
+                </tr>
+              }
+              @default {
+                @for (row of rows(); track row.id) {
+                  <tr class="email-row" [class.pending]="!row.isReplied" title="Clic para ver el correo" (click)="openEmail(row)">
+                    <td class="muted" style="white-space: nowrap;">{{ row.recibido }}</td>
+                    <td style="max-width: 220px;">
+                      <div class="ellipsis from-name" [title]="row.remitente">{{ row.remitente }}</div>
+                      @if (row.fromEmail) {
+                        <div class="ellipsis from-email" [title]="row.fromEmail">{{ row.fromEmail }}</div>
+                      }
+                    </td>
+                    <td style="max-width: 380px;">
+                      <div class="ellipsis subject" [title]="row.asunto">
+                        @if (row.hasAttachments) { <i class="fa-solid fa-paperclip" title="Tiene adjuntos"></i> }
+                        {{ row.asunto }}
+                      </div>
+                    </td>
+                    <td class="muted" style="max-width: 200px;"><div class="ellipsis" [title]="row.para">{{ row.para }}</div></td>
+                    <td style="text-align: center; user-select: none;" (click)="$event.stopPropagation(); toggleResponded(row.id)">
+                      <span style="font-size: 1.2rem;" [title]="row.isReplied ? 'Marcar como no respondido' : 'Marcar como respondido'">
+                        {{ row.isReplied ? '✅' : '❌' }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-light); padding: 3rem;">
+                      <i class="fa-solid fa-box-open" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                      <p>{{ search() ? 'Ningún correo coincide con la búsqueda.' : 'No se encontraron correos en este rango.' }}</p>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

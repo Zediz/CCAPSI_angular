@@ -1,0 +1,139 @@
+/* ===== Modal claro con animación fade + slide ===== */
+.light-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.shown { opacity: 1; }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  &.shown .modal-content { transform: translateY(0); }
+}
+
+.light-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.light-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.light-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.light-btn-cancel,
+.light-btn-submit {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.light-btn-cancel {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.light-btn-submit {
+  background: #0ea5e9;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ===== Tabla ===== */
+tr.editable { cursor: pointer; }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 171, 0, 0.2);
+  color: #ffab00;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &.transferido,
+  &.completado,
+  &.pagado {
+    background: rgba(46, 213, 115, 0.2);
+    color: #2ed573;
+  }
+
+  &.rechazado,
+  &.cancelado {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+  }
+}
+
+button.status-clickable {
+  border: 1px dashed currentColor;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+
+  i { font-size: 0.75rem; margin-left: 4px; opacity: 0.6; }
+
+  &:hover {
+    background: rgba(46, 213, 115, 0.2);
+    color: #2ed573;
+
+    i { opacity: 1; }
+  }
+}
+
+.row-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 5px;
+  transition: color 0.3s;
+}
+
+.row-action-edit {
+  color: #0ea5e9;
+  &:hover { color: #0284c7; }
+}
+
+.row-action-delete {
+  color: #ff4757;
+  &:hover { color: #cc0011; }
+}

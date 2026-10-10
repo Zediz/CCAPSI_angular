@@ -1,0 +1,180 @@
+/* Modal de agendar / editar del calendario */
+
+/* `[hidden]` debe ganarle a los `display` de las clases */
+[hidden] { display: none !important; }
+
+/* ===== Modal claro con animación fade + slide ===== */
+.light-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.shown { opacity: 1; }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    @media (max-width: 600px) {
+      width: calc(100% - 32px);
+      padding: 1.25rem;
+    }
+  }
+
+  &.shown .modal-content { transform: translateY(0); }
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+
+    i { color: var(--primary); }
+  }
+}
+
+.light-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.tipo-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+
+  button {
+    border: none;
+    background: none;
+    padding: 9px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+
+    &.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    &.active:last-child { color: #ff4757; }
+  }
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field.full { grid-column: 1 / -1; }
+
+.req { color: red; }
+
+.light-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.light-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1e293b;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+}
+
+textarea.light-input { resize: vertical; }
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+
+  input { width: 16px; height: 16px; accent-color: var(--primary); }
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .spacer { flex: 1; }
+}
+
+.light-btn-cancel,
+.light-btn-submit,
+.light-btn-delete {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.light-btn-cancel {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.light-btn-submit {
+  background: var(--primary);
+  color: white;
+
+  &:disabled { opacity: 0.7; cursor: default; }
+}
+
+.light-btn-delete {
+  background: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+}

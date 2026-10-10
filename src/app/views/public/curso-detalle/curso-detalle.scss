@@ -1,0 +1,114 @@
+:host {
+  display: block;
+}
+
+@keyframes modalPopIn {
+  0% { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.mobile-sticky-footer {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .responsive-flex-row { flex-direction: column !important; gap: 15px; }
+  .responsive-flex-row > div { width: 100% !important; }
+  .modal-buttons-responsive { flex-direction: column !important; }
+  .modal-buttons-responsive button { width: 100% !important; }
+
+  .mobile-sticky-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 15px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    box-sizing: border-box;
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(0);
+  }
+  .mobile-sticky-footer.hidden { transform: translateY(115%); }
+  .mobile-sticky-footer button {
+    width: 100%;
+    margin: 0;
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  #course-hero-title,
+  #course-hero-subtitle {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #course-hero-title { font-size: 1.5rem !important; }
+  #course-hero-subtitle { font-size: 0.95rem !important; }
+
+  :host { padding-bottom: 140px; }
+
+  .badge-best-seller {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+}
+
+/* ===== Modales ===== */
+.public-modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+}
+
+.public-modal-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.public-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover { color: #333; }
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0px;
+  font-weight: 500;
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}

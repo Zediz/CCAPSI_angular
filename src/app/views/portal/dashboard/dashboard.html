@@ -1,0 +1,104 @@
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+  <div class="container">
+    <h1><span>Dash</span>board</h1>
+    <p>Un vistazo rápido a lo pendiente y accesos directos a las tareas del día a día.</p>
+  </div>
+</header>
+
+<!-- ===== CONTENT ===== -->
+<section class="form-section">
+  <div class="container">
+    <div class="widgets-grid">
+
+      <!-- Balance -->
+      <div class="widget-balance area-balance">
+        <app-balance />
+      </div>
+
+      <!-- Accesos rápidos -->
+      <article class="widget widget-shortcuts area-accesos">
+        @for (a of accesos; track a.route) {
+          <a [routerLink]="a.route" class="shortcut">
+            <span class="icon-bubble" [class]="a.color"><i class="fa-solid" [class]="a.icon"></i></span>
+            <span class="shortcut-label">{{ a.label }}</span>
+          </a>
+        }
+      </article>
+
+      <!-- Próximo curso -->
+      <article class="widget widget-curso area-curso">
+        @switch (cursosState()) {
+          @case ('loading') { <div class="widget-loading"><i class="fa-solid fa-circle-notch fa-spin"></i></div> }
+          @case ('error') { <p class="widget-error">No se pudieron cargar los cursos.</p> }
+          @default {
+            @if (proximoCurso(); as curso) {
+              <div class="widget-head">
+                <div>
+                  <span class="widget-eyebrow">Próximo curso · {{ proximoCursoFecha() }}</span>
+                  <h3 class="widget-title-lg">{{ curso.title }}</h3>
+                  <span class="widget-time">{{ curso.timeLabel }}</span>
+                </div>
+                <i class="fa-solid fa-bolt widget-accent-icon"></i>
+              </div>
+              @if (curso.raw.descripcion) {
+                <p class="widget-text">{{ curso.raw.descripcion }}</p>
+              }
+              <div class="widget-inset">
+                <div>
+                  <span class="inset-label"><i class="fa-regular fa-building"></i> Cliente</span>
+                  <strong>{{ curso.raw.cliente || 'Sin cliente' }}</strong>
+                </div>
+                <div>
+                  <span class="inset-label"><i class="fa-solid fa-location-dot"></i> Modalidad</span>
+                  <strong class="capitalize">{{ curso.raw.modalidad || '—' }}</strong>
+                  @if (curso.raw.ubicacion) { <small>{{ curso.raw.ubicacion }}</small> }
+                </div>
+              </div>
+            } @else {
+              <div class="widget-head">
+                <div>
+                  <span class="widget-eyebrow">Próximo curso</span>
+                  <h3 class="widget-title-lg">Sin cursos agendados</h3>
+                  <span class="widget-time">en los próximos 60 días</span>
+                </div>
+                <i class="fa-solid fa-bolt widget-accent-icon"></i>
+              </div>
+            }
+            <a routerLink="/portal/calendario" class="widget-link">Ver calendario <i class="fa-solid fa-chevron-right"></i></a>
+          }
+        }
+      </article>
+
+      <!-- Transferencias pendientes -->
+      <a routerLink="/portal/transferencias" class="widget widget-counter area-transferencias">
+        <span class="icon-bubble orange"><i class="fa-solid fa-money-bill-transfer"></i></span>
+        @if (transferenciasState() === 'ready') {
+          <span class="counter-number">{{ transferenciasCount() }}</span>
+          <span class="counter-label">Transferencias pendientes</span>
+          <small class="muted">{{ transferenciasTotal() }}</small>
+        } @else {
+          <span class="counter-number muted">{{ transferenciasState() === 'error' ? '!' : '··' }}</span>
+          <span class="counter-label">Transferencias pendientes</span>
+        }
+      </a>
+
+      <!-- Facturas por cobrar -->
+      <a routerLink="/portal/facturas" class="widget widget-counter area-facturas">
+        <span class="icon-bubble red"><i class="fa-solid fa-file-lines"></i></span>
+        @if (facturasState() === 'ready') {
+          <span class="counter-number">{{ facturasCount() }}</span>
+          <span class="counter-label">Facturas por cobrar</span>
+          <small class="muted">{{ facturasTotal() }}</small>
+        } @else {
+          <span class="counter-number muted">{{ facturasState() === 'error' ? '!' : '··' }}</span>
+          <span class="counter-label">Facturas por cobrar</span>
+        }
+      </a>
+
+      <!-- Calculadora de IVA -->
+      <app-calculadora-iva class="area-calculadora" />
+
+    </div>
+  </div>
+</section>
